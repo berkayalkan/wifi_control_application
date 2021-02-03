@@ -74,8 +74,6 @@ if __name__ == '__main__':
     """
     #t = Table(root)
     wrapper1 = LabelFrame(root, text="Local Connected Users", fg="black", font=(('Arial'), 20))
-    wrapper2 = LabelFrame(root, text="Options")
-
     wrapper1.pack(fill = "both", expand="yes", padx=20, pady=20)
     buttons = Label(wrapper1)
     buttons.pack(side=tk.TOP)
