@@ -18,7 +18,7 @@ def arp_scan(ip):
     """
     request = Ether(dst="ff:ff:ff:ff:ff:ff") / ARP(pdst=ip)
     try:
-        ans, unans = srp(request, timeout=2, retry=5)
+        ans, unans = srp(request, timeout=2, retry=1)
     except ValueError:
         pass
 
