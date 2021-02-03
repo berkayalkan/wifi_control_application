@@ -26,14 +26,14 @@ def arp_scan(ip):
     result2 = []
     p = manuf.MacParser(update=True)
     for sent, received in ans:
-        scanned_users[received.psrc] = {'MAC': received.hwsrc, 'Vendor': str(p.get_manuf(received.hwsrc))}
-        temp = (received.psrc, received.hwsrc, str(p.get_manuf(received.hwsrc)))
+        scanned_users[received.psrc] = {'MAC': received.hwsrc.upper(), 'Vendor': str(p.get_manuf(received.hwsrc))}
+        temp = (received.psrc, received.hwsrc.upper(), str(p.get_manuf(received.hwsrc)))
         result2.append(temp)
 
     for received in unans:
         if received.psrc not in scanned_users:
-            scanned_users[received.psrc] = {'MAC': received.hwsrc, 'Vendor': str(p.get_manuf(received.hwsrc))}
-            temp = (received.psrc, received.hwsrc, str(p.get_manuf(received.hwsrc)))
+            scanned_users[received.psrc] = {'MAC': received.hwsrc.upper(), 'Vendor': str(p.get_manuf(received.hwsrc))}
+            temp = (received.psrc, received.hwsrc.upper(), str(p.get_manuf(received.hwsrc)))
             result2.append(temp)
 
     return result2

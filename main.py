@@ -7,11 +7,15 @@ from PIL import ImageTk, Image
 
 ips_to_process = {}
 founded_ips = []
+source = []
 def speed_test():
     print("speed test")
 
 
 def scan():
+    founded_ips = []
+    source = []
+    ips_to_process = {}
     ip_list = arp_scan("192.168.1.1/24")
     t = Table(root, ip_list)
 
@@ -26,14 +30,7 @@ def kill_single():
 
 def recover():
     print("recover")
-
-def getRow(event):
-    rowid = trv.identify_row(event.y)
-    item = trv.item(trv.focus())
-    t1.set(item["values"][0])
-    t2.set(item["values"][1])
-    t3.set(item["values"][2])
-    print(item["values"])
+    
 
 def toggleCheck(event):
     try:
@@ -58,12 +55,17 @@ class Table:
         # code for creating table
         for child in trv.get_children():
             trv.delete(child)
-        founded_ips = []
-        ips_to_process = {}
+        i = 0
         for ip_info in ip_list:
             founded_ip = ip_info[0]
-            trv.insert("", "end", values=ip_info, tags="unchecked")
-            founded_ips.append(founded_ip)
+            founded_mac = ip_info[1]
+            if i == 0:
+                source.append(founded_ip)
+                source.append(founded_mac)
+                i += 1
+            else:
+                trv.insert("", "end", values=ip_info, tags="unchecked")
+                founded_ips.append(founded_ip)
 
 if __name__ == '__main__':
     root = Tk()
@@ -113,7 +115,6 @@ if __name__ == '__main__':
     trv.heading("#2", text="MAC Address")
     trv.heading("#3", text="Manufacturer")
 
-    trv.bind("<Double 1>", getRow)
     trv.bind("<Button 1>", toggleCheck)
 
     root.title("Wifi Control Application")
