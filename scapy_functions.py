@@ -36,9 +36,6 @@ def arp_scan(ip):
             temp = (received.psrc, received.hwsrc, str(p.get_manuf(received.hwsrc)))
             result2.append(temp)
 
-    with open("result1.txt", "w") as f:
-        f.write(str(scanned_users))
-
     return result2
 
 
