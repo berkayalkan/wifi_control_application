@@ -2,12 +2,14 @@ from tkinter import *
 from tkinter import ttk
 import tkinter as tk
 import time
-from scapy_functions import arp_scan
+from scapy_functions import arp_scan, kill
+import multiprocessing
 from PIL import ImageTk, Image
 
 ips_to_process = {}
 founded_ips = []
 source = []
+killed = {}
 def speed_test():
     print("speed test")
 
@@ -25,8 +27,17 @@ def kill_all():
 
 
 def kill_single():
+    for ip_to_process in ips_to_process:
+        kill_wifi = multiprocessing.Process(target = kill, args=(source, ips_to_process[ip_to_process], ip_to_process,))
+        kill_wifi.start()
+    killed[ip_to_process] = ips_to_process[ip_to_process]
     print("kill single")
-
+    """
+    rowid = trv.identify_row(event.y)
+    row = trv.item(rowid)
+    style = ttk.Style(row)
+    style.configure(foreground="red", rowheight=32)
+    """
 
 def recover():
     print("recover")
@@ -39,12 +50,18 @@ def toggleCheck(event):
         ip_to_process = trv.item(rowid, "values")[0]
         mac_to_process = trv.item(rowid, "values")[1]
         tags = list(trv.item(rowid, "tags"))
-        tags.remove(tag)
+        #tags.remove(tag)
         trv.item(rowid, tags=tag)
-        if tag == "checked":
+        if "checked" in tags:
+            #tags.remove(tag)
+            #tags.append("unchecked")
+            #trv.item(rowid, tags=tags)
             trv.item(rowid, tags="unchecked")
             del ips_to_process[ip_to_process]
         else:
+            #tags.remove(tag)
+            #tags.append("checked")
+            #trv.item(rowid, tags=tags)
             trv.item(rowid, tags="checked")
             ips_to_process[ip_to_process] = mac_to_process
     except IndexError:
@@ -65,6 +82,7 @@ class Table:
                 i += 1
             else:
                 trv.insert("", "end", values=ip_info, tags="unchecked")
+                #trv.insert("", "end", values=ip_info, tags=("unchecked", "alive"))
                 founded_ips.append(founded_ip)
 
 if __name__ == '__main__':
@@ -90,7 +108,7 @@ if __name__ == '__main__':
 
     btn_scan = Button(wrapper1, text="Scan", command=scan)
     btn_kill_all = Button(wrapper1, text="Kill All", command=kill_all)
-    btn_kill_single = Button(wrapper1, text="Kill", command=kill_single)
+    btn_kill_single = Button(wrapper1, text="Kill", command= kill_single)
     btn_recover = Button(wrapper1, text="Recover", command=recover)
 
     btn_scan.pack()
@@ -107,7 +125,7 @@ if __name__ == '__main__':
     style.configure("Treeview", foreground="blue", rowheight=32)
     trv.tag_configure("checked", image=im_check)
     trv.tag_configure("unchecked", image=im_uncheck)
-
+    #trv.tag_configure("killed", background=red, image=im_uncheck)
     trv.pack()
     trv.heading("#0", text="")
     trv.column("#0", width=80)
@@ -116,6 +134,7 @@ if __name__ == '__main__':
     trv.heading("#3", text="Manufacturer")
 
     trv.bind("<Button 1>", toggleCheck)
+    trv.bind("<Button 2>", kill_single)
 
     root.title("Wifi Control Application")
     root.geometry("800x400")
