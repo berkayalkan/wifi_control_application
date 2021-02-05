@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import ttk
 import tkinter as tk
 import time
-from scapy_functions import arp_scan, kill
+from scapy_functions import ScapyOperations
 import multiprocessing
 from PIL import ImageTk, Image
 
@@ -10,6 +10,7 @@ ips_to_process = {}
 founded_ips = []
 source = []
 killed = {}
+scapy_operations = ScapyOperations()
 def speed_test():
     print("speed test")
 
@@ -18,7 +19,7 @@ def scan():
     founded_ips = []
     source = []
     ips_to_process = {}
-    ip_list = arp_scan("192.168.1.1/24")
+    ip_list = scapy_operations.arp_scan("192.168.1.1/24")
     t = Table(root, ip_list)
 
 
@@ -28,9 +29,9 @@ def kill_all():
 
 def kill_single():
     for ip_to_process in ips_to_process:
-        kill_wifi = multiprocessing.Process(target = kill, args=(source, ips_to_process[ip_to_process], ip_to_process,))
+        kill_wifi = multiprocessing.Process(target = scapy_operations.kill, args=(source, ips_to_process[ip_to_process], ip_to_process,))
         kill_wifi.start()
-    killed[ip_to_process] = ips_to_process[ip_to_process]
+    #killed[ip_to_process] = ips_to_process[ip_to_process]
     print("kill single")
     """
     rowid = trv.identify_row(event.y)
@@ -40,6 +41,10 @@ def kill_single():
     """
 
 def recover():
+    for ip_to_process in ips_to_process:
+        unkill_wifi = multiprocessing.Process(target = scapy_operations.unkill, args=(source, ips_to_process[ip_to_process], ip_to_process,))
+        unkill_wifi.start()
+    #killed[ip_to_process] = ips_to_process[ip_to_process]
     print("recover")
     
 
