@@ -67,13 +67,14 @@ class ScapyOperations:
             pdst=source[0]
         )
 
-        self.dead[target_ip] = target_mac
-        print(self.dead)
-        while target_ip in self.dead:
-            # Send packets to both target and source
-            send(to_target, verbose=0)
-            send(to_source, verbose=0)
-            time.sleep(wait_after)
+        if target_ip not in self.dead:
+            self.dead[target_ip] = target_mac
+            print(self.dead)
+            while target_ip in self.dead:
+                # Send packets to both target and source
+                send(to_target, verbose=0)
+                send(to_source, verbose=0)
+                time.sleep(wait_after)
         print("unkilled1")
     
 

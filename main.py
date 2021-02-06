@@ -23,6 +23,23 @@ def scan():
     t = Table(root, ip_list)
 
 
+def kill_single():
+    processed_ips = []
+    for ip_to_process in ips_to_process:
+        kill_wifi = multiprocessing.Process(target = scapy_operations.kill, args=(source, ips_to_process[ip_to_process], ip_to_process,))
+        kill_wifi.start()
+        print("kill single")
+        processed_ips.append(ip_to_process)
+        children = trv.get_children()
+        for child in children:
+            if trv.item(child)["values"][0] == ip_to_process:
+                tags = "unchecked-dead"
+                trv.item(child, tags=tags)
+    for ip in processed_ips:
+        ips_to_process.pop(ip)
+    print(ips_to_process)
+
+
 def kill_all():
     for ip in founded_ips:
         #kill_wifi = multiprocessing.Process(target = scapy_operations.kill, args=(source, ips_to_process[ip_to_process], ip_to_process,))
@@ -36,22 +53,6 @@ def kill_all():
     print("kill all")
     print(ips_to_process)
 
-
-def kill_single():
-    processed_ips = []
-    for ip_to_process in ips_to_process:
-        #kill_wifi = multiprocessing.Process(target = scapy_operations.kill, args=(source, ips_to_process[ip_to_process], ip_to_process,))
-        #kill_wifi.start()
-        print("kill single")
-        processed_ips.append(ip_to_process)
-        children = trv.get_children()
-        for child in children:
-            if trv.item(child)["values"][0] == ip_to_process:
-                tags = "unchecked-dead"
-                trv.item(child, tags=tags)
-    for ip in processed_ips:
-        ips_to_process.pop(ip)
-    print(ips_to_process)
 
 def recover():
     processed_ips = []
