@@ -1,12 +1,21 @@
 from tkinter import *
-from tkinter import ttk
+from tkinter import ttk, messagebox
+import json
+from subprocess import Popen, PIPE
 
 from scapy_deneme import arp_scan
 
 
 def speed_test():
-    print("speed test")
-
+    stdout = Popen('speedtest-cli --json', shell=True, stdout=PIPE).stdout
+    output = json.loads(stdout.read().decode("utf-8"))
+    result = "Tested from {0}\n".format(output["client"]["isp"])
+    result += "Hosted by {0}\n".format(output["server"]["sponsor"])
+    result += "Location: {0}-{1}\n".format(output["server"]["name"], output["server"]["country"])
+    result += "Ping: {0} ms\n".format(output["ping"])
+    result += "Download: {:.2f} Mbit/s\n".format(output["download"] / 1000.0 / 1000.0)
+    result += "Upload: {:.2f} Mbit/s\n".format(output["upload"] / 1000.0 / 1000.0)
+    messagebox.showinfo("Connection Speed", result)
 
 
 def scan():
