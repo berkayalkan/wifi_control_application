@@ -82,7 +82,8 @@ class ScapyOperations:
         Unspoofing target
         """
         print(self.dead)
-        self.dead.pop(target_ip)
+        if target_ip in self.dead:
+            self.dead.pop(target_ip)
 
         # Fix target
         to_target = ARP(

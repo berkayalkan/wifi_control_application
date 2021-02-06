@@ -7,16 +7,16 @@ import multiprocessing
 from PIL import ImageTk, Image
 
 ips_to_process = {}
-founded_ips = []
+founded_ips = {}
 source = []
-killed = {}
 scapy_operations = ScapyOperations()
+
 def speed_test():
     print("speed test")
 
 
 def scan():
-    founded_ips = []
+    founded_ips = {}
     source = []
     ips_to_process = {}
     ip_list = scapy_operations.arp_scan("192.168.1.1/24")
@@ -24,28 +24,63 @@ def scan():
 
 
 def kill_all():
+    for ip in founded_ips:
+        #kill_wifi = multiprocessing.Process(target = scapy_operations.kill, args=(source, ips_to_process[ip_to_process], ip_to_process,))
+        #kill_wifi.start()
+        children = trv.get_children()
+        for child in children:
+            if trv.item(child)["values"][0] == ip:
+                tags = "unchecked-dead"
+                trv.item(child, tags=tags)
+    ips_to_process = {}
     print("kill all")
+    print(ips_to_process)
 
 
 def kill_single():
+    processed_ips = []
     for ip_to_process in ips_to_process:
-        kill_wifi = multiprocessing.Process(target = scapy_operations.kill, args=(source, ips_to_process[ip_to_process], ip_to_process,))
-        kill_wifi.start()
-    #killed[ip_to_process] = ips_to_process[ip_to_process]
-    print("kill single")
-    """
-    rowid = trv.identify_row(event.y)
-    row = trv.item(rowid)
-    style = ttk.Style(row)
-    style.configure(foreground="red", rowheight=32)
-    """
+        #kill_wifi = multiprocessing.Process(target = scapy_operations.kill, args=(source, ips_to_process[ip_to_process], ip_to_process,))
+        #kill_wifi.start()
+        print("kill single")
+        processed_ips.append(ip_to_process)
+        children = trv.get_children()
+        for child in children:
+            if trv.item(child)["values"][0] == ip_to_process:
+                tags = "unchecked-dead"
+                trv.item(child, tags=tags)
+    for ip in processed_ips:
+        ips_to_process.pop(ip)
+    print(ips_to_process)
 
 def recover():
+    processed_ips = []
     for ip_to_process in ips_to_process:
-        unkill_wifi = multiprocessing.Process(target = scapy_operations.unkill, args=(source, ips_to_process[ip_to_process], ip_to_process,))
-        unkill_wifi.start()
-    #killed[ip_to_process] = ips_to_process[ip_to_process]
+        #unkill_wifi = multiprocessing.Process(target = scapy_operations.unkill, args=(source, ips_to_process[ip_to_process], ip_to_process,))
+        #unkill_wifi.start()
+        processed_ips.append(ip_to_process)
+        children = trv.get_children()
+        for child in children:
+            if trv.item(child)["values"][0] == ip_to_process:
+                tags = "unchecked-alive"
+                trv.item(child, tags=tags)
+    for ip in processed_ips:
+        ips_to_process.pop(ip)
+    print(ips_to_process)
     print("recover")
+
+def recover_all():
+    for ip_to_process in founded_ips:
+        #unkill_wifi = multiprocessing.Process(target = scapy_operations.unkill, args=(source, ips_to_process[ip_to_process], ip_to_process,))
+        #unkill_wifi.start()
+        children = trv.get_children()
+        for child in children:
+            if trv.item(child)["values"][0] == ip_to_process:
+                tags = "unchecked-alive"
+                trv.item(child, tags=tags)
+    ips_to_process = {}
+    print(ips_to_process)
+    print("recover all")
     
 
 def toggleCheck(event):
@@ -54,20 +89,20 @@ def toggleCheck(event):
         tag = trv.item(rowid, "tags")[0]
         ip_to_process = trv.item(rowid, "values")[0]
         mac_to_process = trv.item(rowid, "values")[1]
-        tags = list(trv.item(rowid, "tags"))
-        #tags.remove(tag)
-        trv.item(rowid, tags=tag)
-        if "checked" in tags:
-            #tags.remove(tag)
-            #tags.append("unchecked")
-            #trv.item(rowid, tags=tags)
-            trv.item(rowid, tags="unchecked")
+        tags = list(trv.item(rowid, "tags"))[0]
+        if "unchecked" not in tags: # checked
+            if "dead" in tags:
+                tags = "unchecked-dead"
+            else:
+                tags = "unchecked-alive"
+            trv.item(rowid, tags=tags)
             del ips_to_process[ip_to_process]
         else:
-            #tags.remove(tag)
-            #tags.append("checked")
-            #trv.item(rowid, tags=tags)
-            trv.item(rowid, tags="checked")
+            if "dead" in tags:
+                tags = "checked-dead"
+            else:
+                tags = "checked-alive"
+            trv.item(rowid, tags=tags)
             ips_to_process[ip_to_process] = mac_to_process
     except IndexError:
         pass
@@ -88,7 +123,8 @@ class Table:
             else:
                 trv.insert("", "end", values=ip_info, tags="unchecked")
                 #trv.insert("", "end", values=ip_info, tags=("unchecked", "alive"))
-                founded_ips.append(founded_ip)
+                founded_ips[founded_ip] = founded_mac
+
 
 if __name__ == '__main__':
     root = Tk()
@@ -115,11 +151,13 @@ if __name__ == '__main__':
     btn_kill_all = Button(wrapper1, text="Kill All", command=kill_all)
     btn_kill_single = Button(wrapper1, text="Kill", command= kill_single)
     btn_recover = Button(wrapper1, text="Recover", command=recover)
+    btn_recover_all = Button(wrapper1, text="Recover All", command=recover_all)
 
     btn_scan.pack()
     btn_kill_all.pack()
     btn_kill_single.pack()
     btn_recover.pack()
+    btn_recover_all.pack()
 
 
     im_check = ImageTk.PhotoImage(Image.open("images/check.png"))
@@ -130,6 +168,12 @@ if __name__ == '__main__':
     style.configure("Treeview", foreground="blue", rowheight=32)
     trv.tag_configure("checked", image=im_check)
     trv.tag_configure("unchecked", image=im_uncheck)
+
+    trv.tag_configure("unchecked-dead", background="red", foreground="white", image=im_uncheck)
+    trv.tag_configure("unchecked-alive", image=im_uncheck)
+
+    trv.tag_configure("checked-dead", background="red", foreground="white", image=im_check)
+    trv.tag_configure("checked-alive", image=im_check)
     #trv.tag_configure("killed", background=red, image=im_uncheck)
     trv.pack()
     trv.heading("#0", text="")
@@ -138,8 +182,9 @@ if __name__ == '__main__':
     trv.heading("#2", text="MAC Address")
     trv.heading("#3", text="Manufacturer")
 
-    trv.bind("<Button 1>", toggleCheck)
-    trv.bind("<Button 2>", kill_single)
+    trv.bind("<Button-1>", toggleCheck)
+    btn_kill_single.bind("<Button-1>", kill_single)
+    btn_kill_all.bind("<Button-1>", kill_all)
 
     root.title("Wifi Control Application")
     root.geometry("800x400")
