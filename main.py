@@ -4,7 +4,6 @@ import tkinter as tk
 import time
 from scapy_functions import ScapyOperations
 import multiprocessing
-from PIL import ImageTk, Image
 import json
 from subprocess import Popen, PIPE
 
@@ -163,16 +162,18 @@ if __name__ == '__main__':
     btn_kill_single = Button(wrapper1, text="Kill", command= kill_single)
     btn_recover = Button(wrapper1, text="Recover", command=recover)
     btn_recover_all = Button(wrapper1, text="Recover All", command=recover_all)
+    btn_speed_test = Button(wrapper1, text="Speed Test", command=speed_test)
 
     btn_scan.pack()
     btn_kill_all.pack()
     btn_kill_single.pack()
     btn_recover.pack()
     btn_recover_all.pack()
+    btn_speed_test.pack()
 
 
-    im_check = ImageTk.PhotoImage(Image.open("images/check.png"))
-    im_uncheck = ImageTk.PhotoImage(Image.open("images/uncheck.png"))
+    im_check = PhotoImage(file = "images/check.png")
+    im_uncheck = PhotoImage(file = "images/uncheck.png")
 
     trv = ttk.Treeview(wrapper1, columns=(1,2,3))
     style = ttk.Style(trv)
