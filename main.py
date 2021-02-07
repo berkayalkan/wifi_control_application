@@ -154,8 +154,7 @@ if __name__ == '__main__':
     btn_recover.grid(row=1, column=4)
     """
     wrapper1 = LabelFrame(root, text="Local Connected Users", fg="black", font=(('Arial'), 20))
-
-    wrapper1.pack(fill = "both", expand="yes", padx=20, pady=10)
+    wrapper1.pack(fill = "both", expand="yes", padx=20, pady=50)
 
     btn_scan = Button(wrapper1, text="Scan", command=scan)
     btn_kill_all = Button(wrapper1, text="Kill All", command=kill_all)
@@ -164,12 +163,13 @@ if __name__ == '__main__':
     btn_recover_all = Button(wrapper1, text="Recover All", command=recover_all)
     btn_speed_test = Button(wrapper1, text="Speed Test", command=speed_test)
 
-    btn_scan.pack()
-    btn_kill_all.pack()
-    btn_kill_single.pack()
-    btn_recover.pack()
-    btn_recover_all.pack()
-    btn_speed_test.pack()
+
+    btn_scan.place(relx=0.3, rely=0.025)
+    btn_kill_all.place(relx=0.35, rely=0.025)
+    btn_kill_single.place(relx=0.41, rely=0.025)
+    btn_recover.place(relx=0.45, rely=0.025)
+    btn_recover_all.place(relx=0.52, rely=0.025)
+    btn_speed_test.place(relx=0.61, rely=0.025)
 
 
     im_check = PhotoImage(file = "images/check.png")
@@ -187,7 +187,7 @@ if __name__ == '__main__':
     trv.tag_configure("checked-dead", background="red", foreground="white", image=im_check)
     trv.tag_configure("checked-alive", image=im_check)
     #trv.tag_configure("killed", background=red, image=im_uncheck)
-    trv.pack()
+    trv.place(relx=0.2, rely=0.1, relheight=0.8)
     trv.heading("#0", text="")
     trv.column("#0", width=80)
     trv.heading("#1", text="IP Address")
@@ -199,5 +199,5 @@ if __name__ == '__main__':
     btn_kill_all.bind("<Button-1>", kill_all)
 
     root.title("Wifi Control Application")
-    root.geometry("800x400")
+    root.geometry("1200x800")
     root.mainloop()
