@@ -26,6 +26,7 @@ class ScapyOperations:
             ]
         """
         request = Ether(dst="ff:ff:ff:ff:ff:ff") / ARP(pdst=ip)
+        self.dead.clear()
         try:
             ans, unans = srp(request, timeout=2, retry=1)
         except ValueError:
