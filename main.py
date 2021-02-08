@@ -35,8 +35,8 @@ def scan():
 def kill_single():
     processed_ips = []
     for ip_to_process in ips_to_process:
-        kill_wifi = multiprocessing.Process(target = scapy_operations.kill, args=(source, ips_to_process[ip_to_process], ip_to_process,))
-        kill_wifi.start()
+        #kill_wifi = multiprocessing.Process(target = scapy_operations.kill, args=(source, ips_to_process[ip_to_process], ip_to_process,))
+        #kill_wifi.start()
         print("kill single")
         processed_ips.append(ip_to_process)
         children = trv.get_children()
@@ -153,15 +153,15 @@ if __name__ == '__main__':
     btn_kill_single.grid(row=1, column=3)
     btn_recover.grid(row=1, column=4)
     """
-    wrapper1 = LabelFrame(root, text="Local Connected Users", fg="black", font=(('Arial'), 20))
+    wrapper1 = LabelFrame(root, text="Local Connected Users", fg="black", font=(('Arial'), 20), bg="dark sea green")
     wrapper1.pack(fill = "both", expand="yes", padx=20, pady=50)
 
-    btn_scan = Button(wrapper1, text="Scan", command=scan)
-    btn_kill_all = Button(wrapper1, text="Kill All", command=kill_all)
-    btn_kill_single = Button(wrapper1, text="Kill", command= kill_single)
-    btn_recover = Button(wrapper1, text="Recover", command=recover)
-    btn_recover_all = Button(wrapper1, text="Recover All", command=recover_all)
-    btn_speed_test = Button(wrapper1, text="Speed Test", command=speed_test)
+    btn_scan = Button(wrapper1, text="Scan", command=scan, bg="rosy brown")
+    btn_kill_all = Button(wrapper1, text="Kill All", command=kill_all, bg="rosy brown")
+    btn_kill_single = Button(wrapper1, text="Kill", command= kill_single, bg="rosy brown")
+    btn_recover = Button(wrapper1, text="Recover", command=recover, bg="rosy brown")
+    btn_recover_all = Button(wrapper1, text="Recover All", command=recover_all, bg="rosy brown")
+    btn_speed_test = Button(wrapper1, text="Speed Test", command=speed_test, bg="rosy brown")
 
 
     btn_scan.place(relx=0.3, rely=0.025)
@@ -177,15 +177,15 @@ if __name__ == '__main__':
 
     trv = ttk.Treeview(wrapper1, columns=(1,2,3))
     style = ttk.Style(trv)
-    style.configure("Treeview", foreground="blue", rowheight=32)
-    trv.tag_configure("checked", image=im_check)
+    style.configure("Treeview", foreground="steel blue", rowheight=32)
+    trv.tag_configure("checked", background="LightSkyBlue2", foreground="white",image=im_check)
     trv.tag_configure("unchecked", image=im_uncheck)
 
-    trv.tag_configure("unchecked-dead", background="red", foreground="white", image=im_uncheck)
+    trv.tag_configure("unchecked-dead", background="tomato2", foreground="white", image=im_uncheck)
     trv.tag_configure("unchecked-alive", image=im_uncheck)
 
-    trv.tag_configure("checked-dead", background="red", foreground="white", image=im_check)
-    trv.tag_configure("checked-alive", image=im_check)
+    trv.tag_configure("checked-dead", background="LightSkyBlue2", foreground="white", image=im_check)
+    trv.tag_configure("checked-alive", background="LightSkyBlue2", foreground="white", image=im_check)
     #trv.tag_configure("killed", background=red, image=im_uncheck)
     trv.place(relx=0.2, rely=0.1, relheight=0.8)
     trv.heading("#0", text="")
