@@ -1,0 +1,5 @@
+click==7.1.2
+manuf==1.1.1
+scapy==2.4.4
+speedtest-cli==2.1.2
+tkinter==8.5

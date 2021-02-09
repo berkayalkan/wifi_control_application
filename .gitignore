@@ -1,5 +1,4 @@
 venv
-*.txt
 .idea
 .vscode
 *.pyc
