@@ -137,8 +137,7 @@ def increase_speed():
     temp_bool = False
     for ip_to_process in ips_to_process:
         if ip_to_process in scapy_operations.dead:
-            pass
-            # messagebox
+            messagebox.showwarning("Not Allowed Action", "Speed of a killed device cannot be increased.")
         elif scapy_operations.speed_of_ips[ip_to_process] == INCREASED:
             pass
         elif scapy_operations.speed_of_ips[ip_to_process] == DECREASED_WITH_BUTTON:
