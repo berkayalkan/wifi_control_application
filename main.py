@@ -1,7 +1,5 @@
 from tkinter import *
 from tkinter import ttk, messagebox
-import tkinter as tk
-import time
 from scapy_functions import ScapyOperations
 import multiprocessing
 import json
@@ -49,9 +47,9 @@ def decrease_speed():
             decreased.append(ip_to_process)
             scapy_operations.speed_of_ips[ip_to_process] = DECREASED_WITH_BUTTON
             decrease_proc = multiprocessing.Process(target=scapy_operations.speed_decrease, args=(source,
-                                                                                        ips_to_process[ip_to_process],
-                                                                                        ip_to_process,
-                                                                                        scapy_operations.speed_of_ips[ip_to_process]))
+                                                                                                  ips_to_process[ip_to_process],
+                                                                                                  ip_to_process,
+                                                                                                  scapy_operations.speed_of_ips[ip_to_process]))
             decrease_proc.start()
         elif scapy_operations.speed_of_ips[ip_to_process] == INCREASED:
             scapy_operations.speed_of_ips[ip_to_process] = DEFAULT
@@ -75,7 +73,6 @@ def decrease_speed():
     ips_to_process.clear()
 
 
-
 def kill_single():
     for ip_to_process in ips_to_process:
         temp_bool = True
@@ -93,7 +90,6 @@ def kill_single():
                                                                                     ip_to_process,
                                                                                     1))
             kill_wifi.start()
-        print("kill single")
         children = trv.get_children()
         for child in children:
             if trv.item(child)["values"][0] == ip_to_process:
@@ -116,15 +112,19 @@ def kill_all():
         scapy_operations.dead[ip_to_process] = founded_ips[ip_to_process]
         scapy_operations.speed_of_ips[ip_to_process] = DEAD
         kill_wifi = multiprocessing.Process(target=scapy_operations.kill, args=(source,
-                                                                                  founded_ips[ip_to_process],
-                                                                                  ip_to_process,
-                                                                                  1))
+                                                                                founded_ips[ip_to_process],
+                                                                                ip_to_process,
+                                                                                1))
         kill_wifi.start()
         children = trv.get_children()
         for child in children:
             if trv.item(child)["values"][0] == ip_to_process:
                 tags = "unchecked-dead"
-                trv.item(child, tags=tags)
+                values = list(trv.item(child)["values"])
+                if "Yes" in values:
+                    values.remove("Yes")
+                    values.append("No")
+                trv.item(child, tags=tags, values=values)
     ips_to_process.clear()
 
 
@@ -205,15 +205,19 @@ def recover_all():
             decreased.remove(ip_to_process)
         scapy_operations.speed_of_ips[ip_to_process] = DEFAULT
         unkill_wifi = multiprocessing.Process(target=scapy_operations.unkill, args=(source,
-                                                                                      founded_ips[ip_to_process],
-                                                                                      ip_to_process,))
+                                                                                    founded_ips[ip_to_process],
+                                                                                    ip_to_process,))
         unkill_wifi.start()
         scapy_operations.speed_of_ips[ip_to_process] = DEFAULT
         children = trv.get_children()
         for child in children:
             if trv.item(child)["values"][0] == ip_to_process:
                 tags = "unchecked-alive"
-                trv.item(child, tags=tags)
+                values = list(trv.item(child)["values"])
+                if "Yes" in values:
+                    values.remove("Yes")
+                    values.append("No")
+                trv.item(child, tags=tags, values=values)
     ips_to_process.clear()
 
 
@@ -280,25 +284,10 @@ if __name__ == '__main__':
     global scapy_operations
     scapy_operations = ScapyOperations()
     root = Tk()
-    """
-    label = Label(root, text="Wifi Control Application", fg="blue", font=(('Arial'), 30))
-    btn_speed_test = Button(root, text="Speed Test", command=speed_test)
-    btn_scan = Button(root, text="Scan", command=scan)
-    btn_kill_all = Button(root, text="Kill All", command=kill_all)
-    btn_kill_single = Button(root, text="Kill", command=kill_single)
-    btn_recover = Button(root, text="Recover", command=recover)
-
-    label.grid(row=0, column=1)
-    btn_speed_test.grid(row=1, column=0)
-    btn_scan.grid(row=1, column=1)
-    btn_kill_all.grid(row=1, column=2)
-    btn_kill_single.grid(row=1, column=3)
-    btn_recover.grid(row=1, column=4)
-    """
     wrapper1 = LabelFrame(root, text="Local Connected Users", fg="black", font=('Arial', 20))
     wrapper1.pack(fill="both", expand="yes", padx=20, pady=50)
 
-    btn_scan = Button(wrapper1, text="Scan", command=scan, bg="red")
+    btn_scan = Button(wrapper1, text="Scan", command=scan)
     btn_kill_single = Button(wrapper1, text="Kill", command=kill_single)
     btn_recover = Button(wrapper1, text="Recover", command=recover)
     btn_kill_all = Button(wrapper1, text="Kill All", command=kill_all)
@@ -316,9 +305,6 @@ if __name__ == '__main__':
     btn_decrease.place(relx=0.615, rely=0.025)
     btn_speed_test.place(relx=0.727, rely=0.025)
 
-    # im_check = PhotoImage(file = "images/check.png")
-    # im_uncheck = PhotoImage(file = "images/uncheck.png")
-
     trv = ttk.Treeview(wrapper1, columns=(1, 2, 3, 4), show="headings")
     style = ttk.Style(trv)
     style.configure("Treeview", foreground="steel blue", rowheight=32)
@@ -335,7 +321,7 @@ if __name__ == '__main__':
     trv.tag_configure("checked-decreased", background="indian red", foreground="white")
     trv.tag_configure("checked-increased", background="green2", foreground="white")
 
-    trv.place(relx=0.25, rely=0.1, relheight=0.8)
+    trv.place(relx=0.20, rely=0.1, relheight=0.8)
 
     trv.heading("#1", text="IP Address")
     trv.heading("#2", text="MAC Address")

