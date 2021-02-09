@@ -59,33 +59,49 @@ def decrease_speed():
             if not increased:
                 if ip_to_process not in scapy_operations.dead and ip_to_process not in decreased:
                     scapy_operations.speed_of_ips[ip_to_process] = DEFAULT
-
+        children = trv.get_children()
+        for child in children:
+            if trv.item(child)["values"][0] == ip_to_process:
+                if scapy_operations.speed_of_ips[ip_to_process] == DEFAULT:
+                    tags = "unchecked-alive"
+                elif scapy_operations.speed_of_ips[ip_to_process] == DEAD:
+                    tags = "unchecked-dead"
+                else:
+                    tags="unchecked-decreased"
+                values = list(trv.item(child)["values"])
+                values.remove("Yes")
+                values.append("No")
+                trv.item(child, tags=tags, values=values)
     ips_to_process.clear()
 
-#renk değişştir
 
 
 def kill_single():
     for ip_to_process in ips_to_process:
+        temp_bool = True
         if ip_to_process in increased:
             increased.remove(ip_to_process)
         if ip_to_process in decreased:
             decreased.remove(ip_to_process)
         if ip_to_process in scapy_operations.dead:
-            continue
-        scapy_operations.dead[ip_to_process] = ips_to_process[ip_to_process]
-        scapy_operations.speed_of_ips[ip_to_process] = DEAD
-        kill_wifi = multiprocessing.Process(target=scapy_operations.kill, args=(source,
-                                                                                ips_to_process[ip_to_process],
-                                                                                ip_to_process,
-                                                                                1))
-        kill_wifi.start()
+            temp_bool = False
+        if temp_bool:
+            scapy_operations.dead[ip_to_process] = ips_to_process[ip_to_process]
+            scapy_operations.speed_of_ips[ip_to_process] = DEAD
+            kill_wifi = multiprocessing.Process(target=scapy_operations.kill, args=(source,
+                                                                                    ips_to_process[ip_to_process],
+                                                                                    ip_to_process,
+                                                                                    1))
+            kill_wifi.start()
         print("kill single")
         children = trv.get_children()
         for child in children:
             if trv.item(child)["values"][0] == ip_to_process:
                 tags = "unchecked-dead"
-                trv.item(child, tags=tags)
+                values = list(trv.item(child)["values"])
+                values.remove("Yes")
+                values.append("No")
+                trv.item(child, tags=tags, values=values)
     ips_to_process.clear()
 
 
@@ -121,17 +137,32 @@ def increase_speed():
     temp_bool = False
     for ip_to_process in ips_to_process:
         if ip_to_process in scapy_operations.dead:
-            continue
+            pass
             # messagebox
         elif scapy_operations.speed_of_ips[ip_to_process] == INCREASED:
-            continue
+            pass
         elif scapy_operations.speed_of_ips[ip_to_process] == DECREASED_WITH_BUTTON:
             decreased.remove(ip_to_process)
+            scapy_operations.speed_of_ips[ip_to_process] = DEFAULT
+        elif scapy_operations.speed_of_ips[ip_to_process] == DECREASED_WITH_INCREASE:
             scapy_operations.speed_of_ips[ip_to_process] = DEFAULT
         else:
             scapy_operations.speed_of_ips[ip_to_process] = INCREASED
             increased.append(ip_to_process)
             temp_bool = True
+        children = trv.get_children()
+        for child in children:
+            if trv.item(child)["values"][0] == ip_to_process:
+                if scapy_operations.speed_of_ips[ip_to_process] == DEAD:
+                    tags = "unchecked-dead"
+                elif scapy_operations.speed_of_ips[ip_to_process] == INCREASED:
+                    tags = "unchecked-increased"
+                else:
+                    tags = "unchecked-alive"
+                values = list(trv.item(child)["values"])
+                values.remove("Yes")
+                values.append("No")
+                trv.item(child, tags=tags, values=values)
     ips_to_process.clear()
 
     if temp_bool:
@@ -159,7 +190,10 @@ def recover():
         for child in children:
             if trv.item(child)["values"][0] == ip_to_process:
                 tags = "unchecked-alive"
-                trv.item(child, tags=tags)
+                values = list(trv.item(child)["values"])
+                values.remove("Yes")
+                values.append("No")
+                trv.item(child, tags=tags, values=values)
     ips_to_process.clear()
 
 
@@ -189,20 +223,34 @@ def toggle_check(event):
         tag = trv.item(rowid, "tags")[0]
         ip_to_process = trv.item(rowid, "values")[0]
         mac_to_process = trv.item(rowid, "values")[1]
+        values = list(trv.item(rowid, "values"))
         tags = list(trv.item(rowid, "tags"))[0]
         if "unchecked" not in tags:  # checked
+            values.remove("Yes")
+            values.append("No")
             if "dead" in tags:
                 tags = "unchecked-dead"
+            elif "decreased" in tags:
+                tags = "unchecked-decreased"
+            elif "increased" in tags:
+                tags = "unchecked-increased"
             else:
                 tags = "unchecked-alive"
-            trv.item(rowid, tags=tags)
-            del ips_to_process[ip_to_process]
+            trv.item(rowid, tags=tags, values=values)
+            if ip_to_process in ips_to_process:
+                del ips_to_process[ip_to_process]
         else:
+            values.remove("No")
+            values.append("Yes")
             if "dead" in tags:
                 tags = "checked-dead"
+            elif "decreased" in tags:
+                tags = "checked-decreased"
+            elif "increased" in tags:
+                tags = "checked-increased"
             else:
                 tags = "checked-alive"
-            trv.item(rowid, tags=tags)
+            trv.item(rowid, tags=tags, values=values)
             ips_to_process[ip_to_process] = mac_to_process
     except IndexError:
         pass
@@ -222,8 +270,8 @@ class Table:
                 source.append(founded_mac)
                 i += 1
             else:
+                ip_info = ip_info + ("No",)
                 trv.insert("", "end", values=ip_info, tags="unchecked")
-                # trv.insert("", "end", values=ip_info, tags=("unchecked", "alive"))
                 founded_ips[founded_ip] = founded_mac
                 scapy_operations.speed_of_ips[founded_ip] = DEFAULT
 
@@ -271,24 +319,29 @@ if __name__ == '__main__':
     # im_check = PhotoImage(file = "images/check.png")
     # im_uncheck = PhotoImage(file = "images/uncheck.png")
 
-    trv = ttk.Treeview(wrapper1, columns=(1, 2, 3), show="headings")
+    trv = ttk.Treeview(wrapper1, columns=(1, 2, 3, 4), show="headings")
     style = ttk.Style(trv)
     style.configure("Treeview", foreground="steel blue", rowheight=32)
     trv.tag_configure("checked", background="LightSkyBlue2", foreground="white")
     trv.tag_configure("unchecked")
 
     trv.tag_configure("unchecked-dead", background="tomato2", foreground="white")
+    trv.tag_configure("unchecked-decreased", background="indian red", foreground="white")
+    trv.tag_configure("unchecked-increased", background="green2", foreground="white")
     trv.tag_configure("unchecked-alive")
 
-    trv.tag_configure("checked-dead", background="LightSkyBlue2", foreground="white")
+    trv.tag_configure("checked-dead", background="tomato2", foreground="white")
     trv.tag_configure("checked-alive", background="LightSkyBlue2", foreground="white")
-    # trv.tag_configure("killed", background=red, image=im_uncheck)
+    trv.tag_configure("checked-decreased", background="indian red", foreground="white")
+    trv.tag_configure("checked-increased", background="green2", foreground="white")
+
     trv.place(relx=0.25, rely=0.1, relheight=0.8)
-    #trv.heading("#0", text="")
-    #trv.column("#0", width=80)
+
     trv.heading("#1", text="IP Address")
     trv.heading("#2", text="MAC Address")
     trv.heading("#3", text="Manufacturer")
+    trv.heading("#4", text="Selected")
+    trv.column("#4", width=80)
 
     trv.bind("<Button-1>", toggle_check)
     btn_kill_single.bind("<Button-1>", kill_single)
