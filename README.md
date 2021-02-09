@@ -1,4 +1,4 @@
-# Wifi Control Application
+﻿# Wifi Control Application
 ### Purpose of the program
 This is a desktop application which allows users to discover other users that are connected to the same LAN with their IP, MAC addresses and manufacturer name. The user can cut the wifi connection and slow down the connection bandwidth of an user who is available on the LAN. The user also will be able to speed up the connection bandwidth of slowed down users. Moreover, the user can check her connection speed from the application.
 ### How to run
@@ -18,6 +18,10 @@ After scanning and selecting a user;
 * Press "Recover" to stop cutting the wifi connection of the user.
 * Press "Increase Speed" to increase the speed of the user.
 * Press "Decrease Speed" to decrease the speed of the user.
+##### Challenges
+* It was our first time with the libraries Scapy and Tkinter. Learning how to use these libraries was challenging. Especially for Scapy, there were generally intro level sources on the internet, so we need to deep dive into Scapy documentation.
+* We learned that we need to use ARP spoofing for cutting someone out of the Wifi, researching whole ARP mechanism and applying ARP spoofing was challenging.
+* In order to increase or decrease a user's internet speed, we manipulate all users' internet speed, arranging speeds with assuring everyone's connection was challenging. 
 ##### Notes
 * User can understand which rows are selected by looking at the "Selected" column which is on the most right part.
 * Killed users' speed can not be changed with buttons, it can only be recovered.
